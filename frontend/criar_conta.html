@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+  <title>Criar Conta</title>
+</head>
+<body>
+  <div class="card">
+    <h2>Criar Conta</h2>
+    <form id="register-form">
+      <label for="reg-email">E-mail</label>
+      <input type="email" id="reg-email" placeholder="seu@exemplo.com" required>
+      <label for="reg-password">Senha</label>
+      <input type="password" id="reg-password" placeholder="Sua senha" required>
+      <label for="reg-password2">Confirmar senha</label>
+      <input type="password" id="reg-password2" placeholder="Repita a senha" required>
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="links">
+      <a href="{{ url_for('index') }}">Voltar para login</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('reg-email').value;
+      const senha = document.getElementById('reg-password').value;
+      const senha2 = document.getElementById('reg-password2').value;
+
+      if(senha !== senha2){ alert("Senhas não coincidem!"); return; }
+
+      const res = await fetch("/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ email, senha })
+      });
+
+      const data = await res.json();
+      alert(data.mensagem);
+
+      if(data.status === "ok"){
+        window.location.href = "/"; // volta para login
+      }
+    });
+  </script>
+</body>
+</html>
