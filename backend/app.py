@@ -1,21 +1,15 @@
 from flask import Flask, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from database import init_app, db
-from models import Usuario
+from models import Usuario, Produto, Pedido, ItemPedido, Estoque, EntradaEstoque
 import os
 
-# Caminhos HTML/CSS
-template_path = os.path.join(os.path.dirname(__file__), "../frontend")
-static_path = template_path
+BASE_DIR = os.path.dirname(__file__)
+TEMPLATE_DIR = os.path.join(BASE_DIR, "../frontend")
 
-app = Flask(__name__, template_folder=template_path, static_folder=static_path)
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=TEMPLATE_DIR)
 init_app(app)
 
-# Cria tabelas se não existirem
-with app.app_context():
-    db.create_all()
-
-# Rotas de páginas
 @app.route("/")
 def index():
     return render_template("login.html")
@@ -28,10 +22,9 @@ def register_page():
 def dashboard():
     return render_template("dashboard.html")
 
-# API: criar conta
 @app.route("/register", methods=["POST"])
 def register():
-    data = request.json
+    data = request.get_json()
     email = data.get("email")
     senha = data.get("senha")
 
@@ -41,19 +34,25 @@ def register():
     if Usuario.query.filter_by(email=email.lower()).first():
         return jsonify(status="erro", mensagem="E-mail já cadastrado"), 400
 
-    user = Usuario(
-        email=email.lower(),
-        senha_hash=generate_password_hash(senha)
-    )
-    db.session.add(user)
-    db.session.commit()
+    try:
+        user = Usuario(
+            nome="Usuário Padrão",
+            perfil="cliente",
+            email=email.lower(),
+            senha_hash=generate_password_hash(senha)
+        )
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(status="ok", mensagem="Conta criada com sucesso!")
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(status="erro", mensagem=str(e))
 
     return jsonify(status="ok", mensagem="Conta criada com sucesso!")
 
-# API: login
 @app.route("/login", methods=["POST"])
 def login():
-    data = request.json
+    data = request.get_json()
     email = data.get("email")
     senha = data.get("senha")
 
@@ -69,25 +68,13 @@ def login():
 
     return jsonify(status="ok", mensagem="Login realizado com sucesso")
 
-
 @app.route("/teste_db")
 def teste_db():
     try:
         db.session.execute("SELECT 1")
         return "✅ Conectado ao banco!"
     except Exception as e:
-        return f"❌ Erro: {e}"
-    
-
+        return f"❌ Erro ao conectar: {e}"
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
-
-
-
-
