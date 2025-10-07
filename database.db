@@ -1,0 +1,99 @@
+CREATE DATABASE IF NOT EXISTS `sistema` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `sistema`;
+
+DROP TABLE IF EXISTS `agendamento_entrega`;
+CREATE TABLE `agendamento_entrega` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `pedido_id` int NOT NULL,
+  `endereco` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data_prevista` timestamp NOT NULL,
+  `motorista` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `veiculo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `observacao` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `pedido_id` (`pedido_id`),
+  CONSTRAINT `agendamento_entrega_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `agendamento_entrega` VALUES 
+(1,1,'Rua das Flores, 123','2025-10-07 12:01:18','José da Silva','Caminhão VW',NULL,'2025-10-06 12:01:18'),
+(2,2,'Av. Central, 890','2025-10-08 12:01:18','Carlos Lima','Van Sprinter',NULL,'2025-10-06 12:01:18'),
+(3,3,'Rodovia BR-290, km 15','2025-10-09 12:01:18','Paulo César','Fiorino',NULL,'2025-10-06 12:01:18');
+
+DROP TABLE IF EXISTS `anexo_pedido`;
+CREATE TABLE `anexo_pedido` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `pedido_id` int NOT NULL,
+  `arquivo_url` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `enviado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `enviado_por` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `enviado_por` (`enviado_por`),
+  KEY `idx_anexo_pedido` (`pedido_id`),
+  CONSTRAINT `anexo_pedido_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `anexo_pedido_ibfk_2` FOREIGN KEY (`enviado_por`) REFERENCES `usuario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `anexo_pedido` VALUES 
+(1,1,'https://mevglass.com/docs/orcamento1.pdf','PDF','2025-10-06 12:01:18',1),
+(2,2,'https://mevglass.com/docs/projeto2.jpg','Imagem','2025-10-06 12:01:18',2),
+(3,3,'https://mevglass.com/docs/nota3.pdf','Nota Fiscal','2025-10-06 12:01:18',3);
+
+DROP TABLE IF EXISTS `estoque`;
+CREATE TABLE `estoque` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `variante_id` int NOT NULL,
+  `quantidade` int NOT NULL DEFAULT '0',
+  `minimo` int NOT NULL DEFAULT '0',
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `variante_id` (`variante_id`),
+  CONSTRAINT `estoque_ibfk_1` FOREIGN KEY (`variante_id`) REFERENCES `variante` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `estoque` VALUES 
+(1,1,10,2,'2025-10-06 12:01:18'),
+(2,2,5,1,'2025-10-06 12:01:18'),
+(3,3,15,3,'2025-10-06 12:01:18');
+
+DROP TABLE IF EXISTS `fase_op`;
+CREATE TABLE `fase_op` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `op_id` int NOT NULL,
+  `nome` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('pendente','em_execucao','concluida') COLLATE utf8mb4_unicode_ci DEFAULT 'pendente',
+  `inicio` timestamp NULL DEFAULT NULL,
+  `fim` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_fase_op_op` (`op_id`),
+  KEY `idx_fase_op_status` (`status`),
+  CONSTRAINT `fase_op_ibfk_1` FOREIGN KEY (`op_id`) REFERENCES `op_producao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `fase_op` VALUES 
+(1,1,'Corte','em_execucao','2025-10-06 12:01:18',NULL),
+(2,2,'Lapidação','pendente',NULL,NULL),
+(3,3,'Montagem','concluida','2025-10-04 12:01:18',NULL);
+
+DROP TABLE IF EXISTS `item_pedido`;
+CREATE TABLE `item_pedido` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `pedido_id` int NOT NULL,
+  `variante_id` int NOT NULL,
+  `quantidade` int NOT NULL,
+  `preco_unit` decimal(12,2) NOT NULL,
+  `valor_total` decimal(12,2) NOT NULL,
+  `observacoes` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `pedido_id` (`pedido_id`),
+  KEY `variante_id` (`variante_id`),
+  CONSTRAINT `item_pedido_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `item_pedido_ibfk_2` FOREIGN KEY (`variante_id`) REFERENCES `variante` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `item_pedido_chk_1` CHECK ((`quantidade` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `item_pedido` VALUES 
+(1,1,2,2,50.00,100.00,NULL),
+(2,2,1,100,100.00,10000.00,NULL);
