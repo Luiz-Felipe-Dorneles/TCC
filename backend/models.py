@@ -5,9 +5,11 @@ from database import db
 # ==========================
 # 🧍 Tabela de Usuários
 # ==========================
+from database import db
+from datetime import datetime
+
 class Usuario(db.Model):
     __tablename__ = "usuario"
-
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(150))
     email = db.Column(db.String(150), unique=True, nullable=False)
@@ -15,11 +17,6 @@ class Usuario(db.Model):
     senha_hash = db.Column(db.String(255), nullable=False)
     criado_em = db.Column(db.DateTime, default=datetime.utcnow)
 
-    pedidos = db.relationship("Pedido", backref="usuario", lazy=True)
-    entradas = db.relationship("EntradaEstoque", backref="usuario", lazy=True)
-
-    def __repr__(self):
-        return f"<Usuario {self.nome}>"
 
 
 # ==========================

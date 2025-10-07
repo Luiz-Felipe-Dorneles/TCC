@@ -1,92 +1,109 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
 
-:root {
-    --cor-fundo: #e3f2fd;
-    --cor-card: #ffffff;
-    --cor-texto: #1e3a8a;
-    --cor-borda: #3b82f6;
-    --cor-botao: #2563eb;
-    --cor-botao-hover: #1d4ed8;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
 }
 
 body {
-    background-color: var(--cor-fundo);
-    font-family: 'Roboto', sans-serif;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    margin: 0;
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
 }
 
 .card {
-    background-color: var(--cor-card);
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-    width: 360px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    padding: 40px 30px;
+    width: 350px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+.card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+.card form {
+    display: flex;
+    flex-direction: column;
+}
+
+.card label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #1E3C72;
     text-align: left;
+    font-family: 'Roboto', sans-serif;
 }
 
-h2 {
-    color: var(--cor-texto);
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-form label {
-    display: block;
-    margin-bottom: 0.25rem;
-    font-weight: 500;
-    color: var(--cor-texto);
-}
-
-input[type="email"],
-input[type="password"],
-input[type="text"] {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-    margin-bottom: 1rem;
-    border: 1px solid var(--cor-borda);
-    border-radius: 0.5rem;
-    font-size: 1rem;
+.card input {
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #1E3C72;
+    font-size: 0.95em;
     outline: none;
-    box-sizing: border-box;
+    transition: 0.3s;
+    font-family: 'Roboto', sans-serif;
 }
 
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="text"]:focus {
-    border-color: var(--cor-botao);
-    box-shadow: 0 0 5px rgba(37, 99, 235, 0.5);
+.card input:focus {
+    border-color: #2A5298;
+    box-shadow: 0 0 5px rgba(42, 82, 152, 0.5);
 }
 
-button {
-    width: 100%;
-    padding: 0.75rem;
+.card button {
+    background: #1E3C72;
+    color: #fff;
     border: none;
-    border-radius: 0.5rem;
-    background-color: var(--cor-botao);
-    color: white;
-    font-weight: 500;
+    padding: 12px;
+    border-radius: 8px;
     cursor: pointer;
-    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.3s;
 }
 
-button:hover {
-    background-color: var(--cor-botao-hover);
+.card button:hover {
+    background: #2A5298;
 }
 
-.links {
-    margin-top: 1rem;
+.card .links {
     text-align: center;
+    margin-top: 15px;
 }
 
-.links a {
-    color: var(--cor-botao);
+.card .links a {
+    color: #1E3C72;
     text-decoration: none;
+    font-size: 0.9em;
+    transition: 0.3s;
+    font-family: 'Roboto', sans-serif;
 }
 
-.links a:hover {
-    color: var(--cor-botao-hover);
+.card .links a:hover {
+    color: #2A5298;
+    text-decoration: underline;
+}
+
+#senha-msg {
+    color: #ff0000;
+    font-size: 0.85em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-family: 'Roboto', sans-serif;
 }
