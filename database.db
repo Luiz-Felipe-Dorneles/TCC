@@ -14,12 +14,7 @@ CREATE TABLE `agendamento_entrega` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `pedido_id` (`pedido_id`),
   CONSTRAINT `agendamento_entrega_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `agendamento_entrega` VALUES 
-(1,1,'Rua das Flores, 123','2025-10-07 12:01:18','José da Silva','Caminhão VW',NULL,'2025-10-06 12:01:18'),
-(2,2,'Av. Central, 890','2025-10-08 12:01:18','Carlos Lima','Van Sprinter',NULL,'2025-10-06 12:01:18'),
-(3,3,'Rodovia BR-290, km 15','2025-10-09 12:01:18','Paulo César','Fiorino',NULL,'2025-10-06 12:01:18');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `anexo_pedido`;
 CREATE TABLE `anexo_pedido` (
@@ -34,12 +29,7 @@ CREATE TABLE `anexo_pedido` (
   KEY `idx_anexo_pedido` (`pedido_id`),
   CONSTRAINT `anexo_pedido_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `anexo_pedido_ibfk_2` FOREIGN KEY (`enviado_por`) REFERENCES `usuario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `anexo_pedido` VALUES 
-(1,1,'https://mevglass.com/docs/orcamento1.pdf','PDF','2025-10-06 12:01:18',1),
-(2,2,'https://mevglass.com/docs/projeto2.jpg','Imagem','2025-10-06 12:01:18',2),
-(3,3,'https://mevglass.com/docs/nota3.pdf','Nota Fiscal','2025-10-06 12:01:18',3);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `estoque`;
 CREATE TABLE `estoque` (
@@ -51,12 +41,7 @@ CREATE TABLE `estoque` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `variante_id` (`variante_id`),
   CONSTRAINT `estoque_ibfk_1` FOREIGN KEY (`variante_id`) REFERENCES `variante` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `estoque` VALUES 
-(1,1,10,2,'2025-10-06 12:01:18'),
-(2,2,5,1,'2025-10-06 12:01:18'),
-(3,3,15,3,'2025-10-06 12:01:18');
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `fase_op`;
 CREATE TABLE `fase_op` (
@@ -70,12 +55,7 @@ CREATE TABLE `fase_op` (
   KEY `idx_fase_op_op` (`op_id`),
   KEY `idx_fase_op_status` (`status`),
   CONSTRAINT `fase_op_ibfk_1` FOREIGN KEY (`op_id`) REFERENCES `op_producao` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `fase_op` VALUES 
-(1,1,'Corte','em_execucao','2025-10-06 12:01:18',NULL),
-(2,2,'Lapidação','pendente',NULL,NULL),
-(3,3,'Montagem','concluida','2025-10-04 12:01:18',NULL);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `item_pedido`;
 CREATE TABLE `item_pedido` (
@@ -92,8 +72,193 @@ CREATE TABLE `item_pedido` (
   CONSTRAINT `item_pedido_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE,
   CONSTRAINT `item_pedido_ibfk_2` FOREIGN KEY (`variante_id`) REFERENCES `variante` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `item_pedido_chk_1` CHECK ((`quantidade` > 0))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO `item_pedido` VALUES 
-(1,1,2,2,50.00,100.00,NULL),
-(2,2,1,100,100.00,10000.00,NULL);
+DELIMITER ;;
+CREATE TRIGGER `trg_item_pedido_before_insert` BEFORE INSERT ON `item_pedido`
+FOR EACH ROW
+BEGIN
+    DECLARE v_preco DECIMAL(12,2);
+    SELECT preco_base INTO v_preco FROM variante WHERE id = NEW.variante_id;
+    SET NEW.preco_unit = v_preco;
+    SET NEW.valor_total = NEW.quantidade * v_preco;
+END;;
+DELIMITER ;
+
+DELIMITER ;;
+CREATE TRIGGER `trg_pedido_total_after_item` AFTER INSERT ON `item_pedido`
+FOR EACH ROW
+BEGIN
+    UPDATE pedido
+    SET total = (SELECT SUM(valor_total) FROM item_pedido WHERE pedido_id = NEW.pedido_id)
+    WHERE id = NEW.pedido_id;
+END;;
+DELIMITER ;
+
+DELIMITER ;;
+CREATE TRIGGER `trg_item_pedido_before_update` BEFORE UPDATE ON `item_pedido`
+FOR EACH ROW
+BEGIN
+    DECLARE v_preco DECIMAL(12,2);
+    SELECT preco_base INTO v_preco FROM variante WHERE id = NEW.variante_id;
+    SET NEW.preco_unit = v_preco;
+    SET NEW.valor_total = NEW.quantidade * v_preco;
+END;;
+DELIMITER ;
+
+DELIMITER ;;
+CREATE TRIGGER `trg_pedido_total_after_item_update` AFTER UPDATE ON `item_pedido`
+FOR EACH ROW
+BEGIN
+    UPDATE pedido
+    SET total = (SELECT SUM(valor_total) FROM item_pedido WHERE pedido_id = NEW.pedido_id)
+    WHERE id = NEW.pedido_id;
+END;;
+DELIMITER ;
+
+DROP TABLE IF EXISTS `movimento_estoque`;
+CREATE TABLE `movimento_estoque` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `estoque_id` int NOT NULL,
+  `usuario_id` int DEFAULT NULL,
+  `quantidade` int NOT NULL,
+  `motivo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `data` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `observacao` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `usuario_id` (`usuario_id`),
+  KEY `idx_movestoque_estoque` (`estoque_id`),
+  KEY `idx_movestoque_data` (`data`),
+  CONSTRAINT `movimento_estoque_ibfk_1` FOREIGN KEY (`estoque_id`) REFERENCES `estoque` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `movimento_estoque_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `op_producao`;
+CREATE TABLE `op_producao` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `item_pedido_id` int NOT NULL,
+  `status` enum('aberto','em_andamento','concluido') COLLATE utf8mb4_unicode_ci DEFAULT 'aberto',
+  `data_abertura` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `data_conclusao` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `item_pedido_id` (`item_pedido_id`),
+  KEY `idx_op_status` (`status`),
+  CONSTRAINT `op_producao_ibfk_1` FOREIGN KEY (`item_pedido_id`) REFERENCES `item_pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `pedido`;
+CREATE TABLE `pedido` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `cliente_nome` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cliente_contato` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('criado','aprovado','em_producao','em_logistica','entregue','finalizado') COLLATE utf8mb4_unicode_ci DEFAULT 'criado',
+  `total` decimal(14,2) NOT NULL DEFAULT '0.00',
+  `criado_por` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `criado_por` (`criado_por`),
+  KEY `idx_pedido_status` (`status`),
+  KEY `idx_pedido_created` (`created_at`),
+  CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`criado_por`) REFERENCES `usuario` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `produto`;
+CREATE TABLE `produto` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `linha` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `formato` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `descricao` text COLLATE utf8mb4_unicode_ci,
+  `imagem_url` text COLLATE utf8mb4_unicode_ci,
+  `ativo` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `sessao`;
+CREATE TABLE `sessao` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `usuario_id` int NOT NULL,
+  `ip` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` text COLLATE utf8mb4_unicode_ci,
+  `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `expiracao` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_sessao_usuario` (`usuario_id`),
+  CONSTRAINT `sessao_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `tracking`;
+CREATE TABLE `tracking` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `pedido_id` int NOT NULL,
+  `evento` enum('roteirizado','em_rota','entregue') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `detalhes` text COLLATE utf8mb4_unicode_ci,
+  `data` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `foto_url` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`id`),
+  KEY `idx_tracking_pedido_data` (`pedido_id`,`data`),
+  CONSTRAINT `tracking_ibfk_1` FOREIGN KEY (`pedido_id`) REFERENCES `pedido` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `usuario`;
+CREATE TABLE `usuario` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nome` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `senha_hash` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `perfil` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT '1',
+  `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `variante`;
+CREATE TABLE `variante` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `produto_id` int NOT NULL,
+  `altura_cm` decimal(7,2) DEFAULT NULL,
+  `largura_cm` decimal(7,2) DEFAULT NULL,
+  `cor` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `led_direto` tinyint(1) NOT NULL DEFAULT '0',
+  `led_indireto` tinyint(1) NOT NULL DEFAULT '0',
+  `moldura` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sku` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `preco_base` decimal(12,2) NOT NULL,
+  `ativo` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku` (`sku`),
+  KEY `idx_variante_produto` (`produto_id`),
+  KEY `idx_variante_busca` (`sku`,`cor`,`moldura`),
+  CONSTRAINT `variante_ibfk_1` FOREIGN KEY (`produto_id`) REFERENCES `produto` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `variante_chk_1` CHECK ((`altura_cm` > 0)),
+  CONSTRAINT `variante_chk_2` CHECK ((`largura_cm` > 0)),
+  CONSTRAINT `variante_chk_3` CHECK ((`preco_base` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP VIEW IF EXISTS `vw_catalogo`;
+CREATE VIEW `vw_catalogo` AS 
+SELECT 
+    p.id AS produto_id,
+    v.id AS variante_id,
+    p.linha AS linha,
+    p.formato AS formato,
+    v.altura_cm AS altura_cm,
+    v.largura_cm AS largura_cm,
+    v.cor AS cor,
+    v.led_direto AS led_direto,
+    v.led_indireto AS led_indireto,
+    v.moldura AS moldura,
+    v.sku AS sku,
+    v.preco_base AS preco_base,
+    e.quantidade AS estoque
+FROM produto p
+JOIN variante v ON v.produto_id = p.id
+LEFT JOIN estoque e ON e.variante_id = v.id
+WHERE p.ativo = true AND v.ativo = true;
