@@ -8,28 +8,67 @@
 }
 
 body {
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     background: linear-gradient(135deg, #1E3C72, #2A5298);
+    color: #333;
 }
 
-.card {
+/* HEADER E MENU */
+header {
+    background: #fff;
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+header h1 {
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 10px;
+}
+
+header nav a {
+    margin: 0 15px;
+    color: #1E3C72;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+header nav a:hover {
+    color: #2A5298;
+}
+
+/* CONTEÚDO PRINCIPAL */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    width: 100%;
+}
+
+section {
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-    padding: 40px 30px;
-    width: 350px;
+    padding: 30px 40px;
+    width: 90%;
+    max-width: 900px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.card:hover {
+section:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
 }
 
-.card h2 {
+section h2, section h3 {
     text-align: center;
     margin-bottom: 25px;
     color: #1E3C72;
@@ -37,40 +76,35 @@ body {
     font-weight: 600;
 }
 
-.card form {
+/* FORMULÁRIOS */
+form {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
 }
 
-.card label {
-    margin-bottom: 5px;
-    font-weight: 500;
-    color: #1E3C72;
-    text-align: left;
-    font-family: 'Roboto', sans-serif;
-}
-
-.card input {
+form input, form select {
     padding: 10px 12px;
-    margin-bottom: 15px;
     border-radius: 8px;
     border: 1px solid #1E3C72;
     font-size: 0.95em;
     outline: none;
     transition: 0.3s;
-    font-family: 'Roboto', sans-serif;
+    width: 45%;
+    min-width: 200px;
 }
 
-.card input:focus {
+form input:focus, form select:focus {
     border-color: #2A5298;
     box-shadow: 0 0 5px rgba(42, 82, 152, 0.5);
 }
 
-.card button {
+form button {
     background: #1E3C72;
     color: #fff;
     border: none;
-    padding: 12px;
+    padding: 12px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
@@ -78,32 +112,49 @@ body {
     transition: 0.3s;
 }
 
-.card button:hover {
+form button:hover {
     background: #2A5298;
 }
 
-.card .links {
+/* TABELAS */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 10px 12px;
     text-align: center;
-    margin-top: 15px;
+    font-size: 0.95em;
 }
 
-.card .links a {
-    color: #1E3C72;
-    text-decoration: none;
-    font-size: 0.9em;
+table th {
+    background-color: #1E3C72;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+}
+
+table tr:nth-child(even) {
+    background-color: #f3f3f3;
+}
+
+table tr:hover {
+    background-color: #e6ecff;
+}
+
+/* BOTÕES DE AÇÃO */
+button {
+    background: #1E3C72;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
     transition: 0.3s;
-    font-family: 'Roboto', sans-serif;
 }
 
-.card .links a:hover {
-    color: #2A5298;
-    text-decoration: underline;
-}
-
-#senha-msg {
-    color: #ff0000;
-    font-size: 0.85em;
-    margin-top: -10px;
-    margin-bottom: 10px;
-    font-family: 'Roboto', sans-serif;
+button:hover {
+    background: #2A5298;
 }

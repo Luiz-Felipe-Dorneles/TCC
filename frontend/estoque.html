@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Estoque - Mev Glass OS</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+<header>
+  <h1>Estoque</h1>
+  <nav>
+<a href="{{ url_for('produtos_page') }}">Produtos</a>
+<a href="{{ url_for('clientes_page') }}">Clientes</a>
+<a href="{{ url_for('estoque_page') }}">Estoque</a>
+<a href="{{ url_for('faturamento_page') }}">Faturamento</a>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <h2>Controle de Estoque</h2>
+    <table id="estoque-table">
+      <thead><tr><th>Produto</th><th>Estoque</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+    let produtos = JSON.parse(localStorage.getItem('produtos') || '[]');
+
+function updateEstoqueTable() {
+  const tbody = document.querySelector('#estoque-table tbody');
+  tbody.innerHTML = '';
+  produtos.forEach(p => {
+    tbody.innerHTML += `<tr><td>${p.nome}</td><td>${p.estoque}</td></tr>`;
+  });
+}
+
+updateEstoqueTable();
+</script>
+</body>
+</html>

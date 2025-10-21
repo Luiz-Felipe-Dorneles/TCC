@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
+}
+
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    padding: 40px 30px;
+    width: 350px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+.card h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+.card form {
+    display: flex;
+    flex-direction: column;
+}
+
+.card label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #1E3C72;
+    text-align: left;
+    font-family: 'Roboto', sans-serif;
+}
+
+.card input {
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #1E3C72;
+    font-size: 0.95em;
+    outline: none;
+    transition: 0.3s;
+    font-family: 'Roboto', sans-serif;
+}
+
+.card input:focus {
+    border-color: #2A5298;
+    box-shadow: 0 0 5px rgba(42, 82, 152, 0.5);
+}
+
+.card button {
+    background: #1E3C72;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: 0.3s;
+}
+
+.card button:hover {
+    background: #2A5298;
+}
+
+.card .links {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.card .links a {
+    color: #1E3C72;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: 0.3s;
+    font-family: 'Roboto', sans-serif;
+}
+
+.card .links a:hover {
+    color: #2A5298;
+    text-decoration: underline;
+}
+
+#senha-msg {
+    color: #ff0000;
+    font-size: 0.85em;
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-family: 'Roboto', sans-serif;
+}

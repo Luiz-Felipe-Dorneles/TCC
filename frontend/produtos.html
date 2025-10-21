@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Produtos - Mev Glass OS</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <h1>Produtos</h1>
+  <nav>
+    <a href="{{ url_for('produtos_page') }}">Produtos</a>
+    <a href="{{ url_for('clientes_page') }}">Clientes</a>
+    <a href="{{ url_for('estoque_page') }}">Estoque</a>
+    <a href="{{ url_for('faturamento_page') }}">Faturamento</a>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <h2>Cadastro de Produtos</h2>
+    <form id="produto-form">
+      <input type="text" id="produto-nome" placeholder="Nome do Espelho" required>
+      <input type="text" id="produto-formato" placeholder="Formato do Espelho" required>
+      <input type="number" id="produto-preco" placeholder="Preço" step="0.01" required>
+      <input type="number" id="produto-estoque" placeholder="Quantidade em Estoque (mín 5)" min="5" required>
+      <button type="submit">Cadastrar Produto</button>
+    </form>
+
+    <h3>Lista de Produtos</h3>
+    <table id="produtos-table">
+      <thead><tr><th>Nome</th><th>Formato</th><th>Preço</th><th>Estoque</th><th>Ação</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  let produtos = JSON.parse(localStorage.getItem('produtos') || '[]');
+
+function updateProdutosTable() {
+  const tbody = document.querySelector('#produtos-table tbody');
+  tbody.innerHTML = '';
+  produtos.forEach((p, index) => {
+    tbody.innerHTML += `<tr>
+      <td>${p.nome}</td>
+      <td>${p.formato}</td>
+      <td>$${p.preco.toFixed(2)}</td>
+      <td>${p.estoque}</td>
+      <td><button onclick="excluirProduto(${index})">Excluir</button></td>
+    </tr>`;
+  });
+  localStorage.setItem('produtos', JSON.stringify(produtos));
+}
+
+function excluirProduto(index) {
+  // Remove vendas relacionadas
+  let faturamentos = JSON.parse(localStorage.getItem('faturamentos') || '[]');
+  faturamentos = faturamentos.filter(f => f.produto !== index);
+
+  // Ajusta índices de produtos nas vendas restantes
+  faturamentos = faturamentos.map(f => {
+    if(f.produto > index) f.produto -= 1;
+    return f;
+  });
+
+  localStorage.setItem('faturamentos', JSON.stringify(faturamentos));
+
+  produtos.splice(index, 1);
+  updateProdutosTable();
+}
+
+document.getElementById('produto-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const nome = document.getElementById('produto-nome').value;
+  const formato = document.getElementById('produto-formato').value;
+  const preco = parseFloat(document.getElementById('produto-preco').value);
+  const estoque = parseInt(document.getElementById('produto-estoque').value);
+
+  if (estoque < 5) {
+    alert("A quantidade mínima em estoque é 5.");
+    return;
+  }
+
+  produtos.push({nome, formato, preco, estoque});
+  updateProdutosTable();
+  e.target.reset();
+});
+
+updateProdutosTable();
+
+</script>
+</body>
+</html>

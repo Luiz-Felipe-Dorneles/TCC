@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Faturamento - Mev Glass OS</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+<header>
+  <h1>Faturamento</h1>
+  <nav>
+<a href="{{ url_for('produtos_page') }}">Produtos</a>
+<a href="{{ url_for('clientes_page') }}">Clientes</a>
+<a href="{{ url_for('estoque_page') }}">Estoque</a>
+<a href="{{ url_for('faturamento_page') }}">Faturamento</a>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <h2>Registrar Venda</h2>
+    <form id="faturamento-form">
+      <select id="fatura-cliente" required></select>
+      <select id="fatura-produto" required></select>
+      <input type="number" id="fatura-quantidade" placeholder="Quantidade" required>
+      <button type="submit">Registrar Venda</button>
+    </form>
+
+    <h3>Faturamentos</h3>
+    <table id="faturamento-table">
+      <thead><tr><th>Cliente</th><th>Produto</th><th>Quantidade</th><th>Total</th><th>Ação</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+    let produtos = JSON.parse(localStorage.getItem('produtos') || '[]');
+let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
+let faturamentos = JSON.parse(localStorage.getItem('faturamentos') || '[]');
+
+function updateFaturamentoSelects() {
+  const clienteSelect = document.getElementById('fatura-cliente');
+  const produtoSelect = document.getElementById('fatura-produto');
+  clienteSelect.innerHTML = '<option value="">Selecione Cliente</option>';
+  produtoSelect.innerHTML = '<option value="">Selecione Produto</option>';
+  clientes.forEach((c,i)=> clienteSelect.innerHTML += `<option value="${i}">${c.nome}</option>`);
+  produtos.forEach((p,i)=> produtoSelect.innerHTML += `<option value="${i}">${p.nome}</option>`);
+}
+
+function updateFaturamentoTable() {
+  const tbody = document.querySelector('#faturamento-table tbody');
+  tbody.innerHTML = '';
+  faturamentos.forEach((f,index)=>{
+    tbody.innerHTML += `<tr>
+      <td>${clientes[f.cliente].nome}</td>
+      <td>${produtos[f.produto].nome}</td>
+      <td>${f.quantidade}</td>
+      <td>${f.total.toFixed(2)}</td>
+      <td><button onclick="removerFaturamento(${index})">Remover</button></td>
+    </tr>`;
+  });
+}
+
+function removerFaturamento(index){
+  const f = faturamentos[index];
+  produtos[f.produto].estoque += f.quantidade;
+  faturamentos.splice(index,1);
+  localStorage.setItem('faturamentos', JSON.stringify(faturamentos));
+  localStorage.setItem('produtos', JSON.stringify(produtos));
+  updateFaturamentoTable();
+}
+
+document.getElementById('faturamento-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const cliente = parseInt(document.getElementById('fatura-cliente').value);
+  const produto = parseInt(document.getElementById('fatura-produto').value);
+  const quantidade = parseInt(document.getElementById('fatura-quantidade').value);
+  const total = produtos[produto].preco * quantidade;
+
+  faturamentos.push({cliente, produto, quantidade, total});
+  localStorage.setItem('faturamentos', JSON.stringify(faturamentos));
+
+  produtos[produto].estoque -= quantidade;
+  localStorage.setItem('produtos', JSON.stringify(produtos));
+
+  updateFaturamentoTable();
+  updateFaturamentoSelects();
+  e.target.reset();
+});
+
+updateFaturamentoSelects();
+updateFaturamentoTable();
+</script>
+</body>
+</html>
