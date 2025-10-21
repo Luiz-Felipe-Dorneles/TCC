@@ -4,12 +4,16 @@ from database import init_app, db
 from models import Usuario, Produto, Pedido, ItemPedido, Estoque, EntradaEstoque
 import os
 
-template_path = os.path.join(os.path.dirname(__file__), "../frontend")
-static_path = template_path
+# Diretórios
+BASE_DIR = os.path.dirname(__file__)
+TEMPLATE_DIR = os.path.join(BASE_DIR, "../frontend")
 
-app = Flask(__name__, template_folder=template_path, static_folder=static_path)
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=TEMPLATE_DIR)
 init_app(app)
 
+# -------------------
+# Rotas de páginas
+# -------------------
 @app.route("/")
 def index():
     return render_template("login.html")
@@ -18,18 +22,32 @@ def index():
 def register_page():
     return render_template("criar_conta.html")
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template("dashboard.html")
+@app.route("/produtos")
+def produtos_page():
+    return render_template("produtos.html")
 
+@app.route("/clientes")
+def clientes_page():
+    return render_template("clientes.html")
+
+@app.route("/estoque")
+def estoque_page():
+    return render_template("estoque.html")
+
+@app.route("/faturamento")
+def faturamento_page():
+    return render_template("faturamento.html")
+
+# -------------------
+# Rotas de login e registro
+# -------------------
 @app.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
-    nome = data.get("nome")
     email = data.get("email")
     senha = data.get("senha")
 
-    if not nome or not email or not senha:
+    if not email or not senha:
         return jsonify(status="erro", mensagem="Preencha todos os campos"), 400
 
     if Usuario.query.filter_by(email=email.lower()).first():
@@ -37,7 +55,7 @@ def register():
 
     try:
         user = Usuario(
-            nome=nome,
+            nome="Usuário Padrão",
             perfil="cliente",
             email=email.lower(),
             senha_hash=generate_password_hash(senha)
@@ -67,13 +85,19 @@ def login():
 
     return jsonify(status="ok", mensagem="Login realizado com sucesso")
 
+# -------------------
+# Teste de conexão ao DB
+# -------------------
 @app.route("/teste_db")
 def teste_db():
     try:
         db.session.execute("SELECT 1")
         return "✅ Conectado ao banco!"
     except Exception as e:
-        return f"❌ Erro: {e}"
+        return f"❌ Erro ao conectar: {e}"
 
+# -------------------
+# Rodar app
+# -------------------
 if __name__ == "__main__":
     app.run(debug=True)
