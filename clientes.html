@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Clientes - Mev Glass OS</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+  <h1>Clientes</h1>
+  <nav>
+<a href="{{ url_for('produtos_page') }}">Produtos</a>
+<a href="{{ url_for('clientes_page') }}">Clientes</a>
+<a href="{{ url_for('estoque_page') }}">Estoque</a>
+<a href="{{ url_for('faturamento_page') }}">Faturamento</a>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <h2>Cadastro de Clientes</h2>
+    <form id="cliente-form">
+      <input type="text" id="cliente-nome" placeholder="Nome do Cliente" required>
+      <input type="email" id="cliente-email" placeholder="Email" required>
+      <button type="submit">Cadastrar Cliente</button>
+    </form>
+
+    <h3>Lista de Clientes</h3>
+    <table id="clientes-table">
+      <thead><tr><th>Nome</th><th>Email</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+let clientes = JSON.parse(localStorage.getItem('clientes') || '[]');
+
+function updateClientesTable() {
+  const tbody = document.querySelector('#clientes-table tbody');
+  tbody.innerHTML = '';
+  clientes.forEach((c, index) => {
+    tbody.innerHTML += `<tr>
+      <td>${c.nome}</td>
+      <td>${c.email}</td>
+      <td><button onclick="excluirCliente(${index})">Excluir</button></td>
+    </tr>`;
+  });
+  localStorage.setItem('clientes', JSON.stringify(clientes));
+}
+
+function excluirCliente(index) {
+  // Remove vendas relacionadas
+  let faturamentos = JSON.parse(localStorage.getItem('faturamentos') || '[]');
+  faturamentos = faturamentos.filter(f => f.cliente !== index);
+
+  // Ajusta índices de clientes nas vendas restantes
+  faturamentos = faturamentos.map(f => {
+    if(f.cliente > index) f.cliente -= 1;
+    return f;
+  });
+
+  localStorage.setItem('faturamentos', JSON.stringify(faturamentos));
+  clientes.splice(index, 1);
+  updateClientesTable();
+}
+
+document.getElementById('cliente-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const nome = document.getElementById('cliente-nome').value;
+  const email = document.getElementById('cliente-email').value;
+
+  clientes.push({nome, email});
+  updateClientesTable();
+  e.target.reset();
+});
+
+updateClientesTable();
+
+</script>
+</body>
+</html>
