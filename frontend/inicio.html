@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Mev Glass OS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='inicio.css') }}">
+    <style>
+        /* CSS Extra para os ícones e botão ver mais */
+        .feed-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        .feed-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .bg-venda { background-color: #d4edda; color: #155724; }
+        .bg-cadastro { background-color: #cce5ff; color: #004085; }
+        .feed-info { display: flex; flex-direction: column; }
+        .feed-title { font-weight: bold; font-size: 0.9rem; }
+        .feed-desc { font-size: 0.85rem; color: #555; }
+        .feed-date { font-size: 0.75rem; color: #999; }
+
+        /* Botão Ver Mais */
+        .btn-ver-mais {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            text-align: center;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            color: #555;
+            border-radius: 0 0 8px 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            transition: background 0.2s;
+        }
+        .btn-ver-mais:hover {
+            background: #e2e6ea;
+            color: #333;
+        }
+        .hidden-item {
+            display: none; /* Classe para esconder os itens extras */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>prodmanager</h1>
+</header>
+
+<main>
+    <section>
+        <h2 id="welcome-message">Bem-vindo(a) de volta!</h2>
+        <div class="action-hub">
+            <a href="{{ url_for('faturamento_page') }}" class="action-card">
+                <span>Nova Venda</span>
+            </a>
+            <a href="{{ url_for('produtos_page') }}" class="action-card">
+                <span>Adicionar Produto</span>
+            </a>
+            <a href="{{ url_for('estoque_page') }}" class="action-card">
+                <span>Ver Estoque</span>
+            </a>
+            <a href="{{ url_for('clientes_page') }}" class="action-card">
+                <span>Novo Cliente</span>
+            </a>
+        </div>
+    </section>
+
+    <div class="dashboard-columns">
+        <section>
+            <h2>Status do Estoque</h2>
+            <div id="stock-status-list">
+                <p>Carregando estoque...</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>Atividade Recente</h2>
+            <ul class="activity-feed" id="activity-feed">
+                <li>Carregando atividades...</li>
+            </ul>
+            <button id="btn-load-more" class="btn-ver-mais" style="display: none;">
+                Ver todas as atividades
+            </button>
+        </section>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    // Função utilitária
+    async function safeFetchJson(url, opts) {
+        try {
+            const r = await fetch(url, opts);
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return await r.json();
+        } catch (err) {
+            console.warn("fetch error", url, err);
+            return { __error: true, message: err.message || String(err) };
+        }
+    }
+
+    // ==========================================
+    // 1) Carregar Estoque (Lógica Original)
+    // ==========================================
+    const stockData = await safeFetchJson('/estoque/variantes');
+    const stockListContainer = document.getElementById('stock-status-list');
+    stockListContainer.innerHTML = '';
+
+    if (stockData && !stockData.__error && Array.isArray(stockData) && stockData.length) {
+        const sorted = stockData.slice().sort((a,b) => (a.estoque||0) - (b.estoque||0)).slice(0,5);
+        sorted.forEach(v => {
+            const target = v.minimo || 20;
+            const percentage = Math.min(((v.estoque || 0) / target) * 100, 100);
+            let statusClass = 'high';
+            if (percentage < 25) statusClass = 'low';
+            else if (percentage < 60) statusClass = 'medium';
+
+            const div = document.createElement('div');
+            div.className = 'stock-item';
+            div.innerHTML = `
+                <div class="stock-item-info">
+                    <span>${v.nome_produto}</span>
+                    <strong>${v.estoque || 0} Unid.</strong>
+                </div>
+                <div class="progress-bar" style="border:1px solid #ddd; height:10px; border-radius:6px; background:#f5f5f5;">
+                    <div style="height:100%; width:${percentage}%; background:${statusClass === 'low' ? '#e74c3c' : statusClass === 'medium' ? '#f1c40f' : '#2ecc71'}; border-radius:6px"></div>
+                </div>
+            `;
+            stockListContainer.appendChild(div);
+        });
+    } else {
+        stockListContainer.innerHTML = '<p>Estoque vazio ou erro ao carregar.</p>';
+    }
+
+    // ==========================================
+    // 2) Atividade Recente (COM BOTÃO VER MAIS)
+    // ==========================================
+    const activityContainer = document.getElementById('activity-feed');
+    const loadMoreBtn = document.getElementById('btn-load-more');
+    activityContainer.innerHTML = '';
+
+    const atividades = await safeFetchJson('/api/atividades_recentes');
+    
+    if (atividades && !atividades.__error && Array.isArray(atividades)) {
+        if (atividades.length === 0) {
+            activityContainer.innerHTML = '<li>Nenhuma atividade recente.</li>';
+        } else {
+            // Configuração de limites
+            const PREVIA_LIMIT = 3;
+            let temMaisItens = false;
+
+            atividades.forEach((item, index) => {
+                // Define cor e data
+                const classeCor = item.tipo === 'venda' ? 'bg-venda' : 'bg-cadastro';
+                const dataObj = new Date(item.data);
+                const dataFmt = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', hour:'2-digit', minute:'2-digit' });
+
+                const li = document.createElement('li');
+                li.className = 'feed-item';
+                
+                // Se o índice for maior que 4 (0,1,2,3,4 = 5 itens), esconde o item
+                if (index >= PREVIA_LIMIT) {
+                    li.classList.add('hidden-item');
+                    temMaisItens = true;
+                }
+                
+                li.innerHTML = `
+                    <div class="feed-icon ${classeCor}">
+                        ${item.icone}
+                    </div>
+                    <div class="feed-info">
+                        <span class="feed-title">${item.titulo}</span>
+                        <span class="feed-desc">${item.descricao} — <strong>${item.detalhe}</strong></span>
+                        <span class="feed-date">${dataFmt}</span>
+                    </div>
+                `;
+                activityContainer.appendChild(li);
+            });
+
+            // Lógica do Botão
+            if (temMaisItens) {
+                loadMoreBtn.style.display = 'block'; // Mostra o botão
+                
+                loadMoreBtn.onclick = function() {
+                    // Pega todos os itens escondidos
+                    const escondidos = document.querySelectorAll('.hidden-item');
+                    escondidos.forEach(el => {
+                        el.style.display = 'flex'; // Mostra o item (display flex para manter alinhamento)
+                        el.classList.remove('hidden-item'); // Opcional, remove a classe
+                    });
+                    // Esconde o botão após clicar
+                    loadMoreBtn.style.display = 'none';
+                };
+            }
+        }
+    } else {
+        activityContainer.innerHTML = '<li style="color:red">Erro ao carregar atividades.</li>';
+    }
+});
+</script>
+<style>
+    /* Estilos do Widget de Perfil */
+    .profile-widget {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: #ffffff;
+        padding: 10px 15px;
+        border-radius: 50px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid #e2e8f0;
+        z-index: 9999;
+        font-family: 'Inter', sans-serif;
+    }
+    .profile-avatar {
+        width: 38px;
+        height: 38px;
+        background: #0f172a; /* Cor escura elegante */
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+    .profile-info { display: flex; flex-direction: column; }
+    .profile-name { font-size: 14px; font-weight: 600; color: #333; line-height: 1.2; text-transform: capitalize; }
+    .profile-role { font-size: 11px; color: #777; }
+    .btn-logout {
+        margin-left: 8px; background: #fee2e2; color: #ef4444; border: none;
+        width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; transition: 0.2s;
+    }
+    .btn-logout:hover { background: #ef4444; color: white; }
+    a.logout-link { text-decoration: none; display: flex; }
+</style>
+
+<div class="profile-widget">
+    <div class="profile-avatar">
+        {{ nome_usuario[0] if nome_usuario else 'U' }}
+    </div>
+    <div class="profile-info">
+        <span class="profile-name">{{ nome_usuario }}</span>
+        <span class="profile-role">Administrador</span>
+    </div>
+    
+    <a href="/logout" class="logout-link" title="Sair da conta">
+        <button class="btn-logout">✕</button>
+    </a>
+</div>
+</body>
+</html>

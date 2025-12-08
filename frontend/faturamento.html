@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Faturamento - Mev Glass OS</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* --- ESTILO CLEAN & SUAVE (Layout 2 Colunas) --- */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --input-bg: #ffffff;
+            --border-subtle: #e2e8f0;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --primary: #0f172a;
+            --blue-btn: #3b82f6;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --success: #10b981;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        nav a:hover {
+            color: var(--primary);
+        }
+
+        /* Layout de Grade (Grid) para separar as áreas */
+        main {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            /* Coluna fixa esquerda, resto direita */
+            gap: 30px;
+            align-items: start;
+        }
+
+        /* Estilo dos Cards */
+        .card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-subtle);
+        }
+
+        h2,
+        h3 {
+            font-weight: 600;
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            font-size: 1.3rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        /* Inputs */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        select,
+        input {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--bg-body);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        select:focus,
+        input:focus {
+            background-color: #fff;
+            border-color: var(--blue-btn);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Botão */
+        button[type="submit"],
+        .btn-action {
+            background-color: var(--primary);
+            color: white;
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        button[type="submit"]:hover,
+        .btn-action:hover {
+            background-color: #1e293b;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background-color: #cbd5e1;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: #fff;
+            color: var(--text-main);
+            border: 1px solid var(--border-subtle);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f1f5f9;
+            color: var(--primary);
+        }
+
+        /* Tabela */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+        }
+
+        th {
+            padding: 12px 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 2px solid var(--border-subtle);
+        }
+
+        td {
+            padding: 15px;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            border-bottom: 1px solid #f1f5f9;
+            background-color: #fff;
+        }
+
+        /* Tags Visuais */
+        .price-tag {
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .id-tag {
+            font-family: monospace;
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 900px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+
+            /* Vira 1 coluna em telas menores */
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        /* Search Bar Container */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1><a href="{{ url_for('inicio_page') }}">prodmanager</a></h1>
+        <nav>
+            <a href="{{ url_for('produtos_page') }}">Produtos</a>
+            <a href="{{ url_for('clientes_page') }}">Cadastrar Cliente</a>
+            <a href="{{url_for('lista_cliente_page')}}">Lista Clientes</a>
+            <a href="{{ url_for('estoque_page') }}">Estoque</a>
+            <a href="{{ url_for('faturamento_page') }}">Faturamento</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2>Nova Venda</h2>
+            <span class="subtitle">Preencha os dados para lançar o pedido.</span>
+
+            <!-- Search & Filter -->
+            <div class="search-container">
+                <input type="text" id="global-search" class="search-input" placeholder="Buscar cliente ou produto...">
+                <button type="button" class="btn-action btn-secondary" style="width: auto; margin-top:0;"
+                    onclick="abrirModalFiltro()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="faturamento-form">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="fatura-cliente" required>
+                        <option value="">Carregando clientes...</option>
+                    </select>
+                    <small style="color:#999; font-size:0.8em;">*Clientes cadastrados no sistema</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Produto (Variante)</label>
+                    <select id="fatura-produto" required>
+                        <option value="">Carregando produtos...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="fatura-quantidade" placeholder="1" min="1" required>
+                </div>
+
+                <button type="submit">Confirmar Venda</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Histórico de Vendas</h2>
+            <span class="subtitle">Últimos pedidos realizados no sistema.</span>
+
+            <div class="table-wrapper">
+                <table id="faturamento-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Resumo</th>
+                            <th>Total</th>
+                            <th>Data</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-pedidos-body">
+                        <tr>
+                            <td colspan="5" style="text-align:center; padding:20px; color:#999;">Carregando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Filtros -->
+    <div id="filter-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtros Avançados</h3>
+                <button class="close-modal" onclick="fecharModalFiltro()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Filtrar Clientes por Nome</label>
+                <input type="text" id="filter-cliente-nome" placeholder="Digite parte do nome...">
+            </div>
+            <div class="form-group">
+                <label>Filtrar Produtos por Linha/Cor</label>
+                <input type="text" id="filter-produto-nome" placeholder="Digite linha, formato ou cor...">
+            </div>
+            <button class="btn-action" onclick="aplicarFiltros()">Aplicar Filtros</button>
+        </div>
+    </div>
+
+    <script>
+        let todosClientes = [];
+        let todosProdutos = [];
+
+        // 1. Carregar Clientes (DA API) e Produtos (DA API)
+        async function carregarDados() {
+            try {
+                // --- CARREGAR CLIENTES DA API ---
+                const clientesReq = await fetch("/clientes/listar");
+                todosClientes = await clientesReq.json();
+
+                // --- CARREGAR PRODUTOS DA API ---
+                const produtosReq = await fetch("/produto/catalogo");
+                todosProdutos = await produtosReq.json();
+
+                // Ordena produtos alfabeticamente
+                todosProdutos.sort((a, b) => a.linha.localeCompare(b.linha));
+
+                // Popula dropdowns inicialmente sem filtros
+                popularClientes(todosClientes);
+                popularProdutos(todosProdutos);
+
+                checkProdutoEstoque();
+
+            } catch (e) {
+                console.error("Erro ao carregar dados:", e);
+                alert("Erro ao carregar dados. Verifique o console.");
+            }
+        }
+
+        function popularClientes(lista) {
+            const clienteSelect = document.getElementById("fatura-cliente");
+            clienteSelect.innerHTML = "<option value=''>Selecione o Cliente</option>";
+
+            if (lista.length === 0) {
+                clienteSelect.innerHTML += "<option disabled>Nenhum cliente encontrado</option>";
+            } else {
+                lista.forEach(c => {
+                    clienteSelect.innerHTML += `<option value="${c.nome}">${c.nome}</option>`;
+                });
+            }
+        }
+
+        function popularProdutos(lista) {
+            const produtoSelect = document.getElementById("fatura-produto");
+            produtoSelect.innerHTML = "<option value=''>Selecione o Produto</option>";
+
+            lista.forEach(p => {
+                const estoqueTexto = p.estoque > 0 ? `(Estoque: ${p.estoque})` : `(SEM ESTOQUE)`;
+                const disabled = p.estoque <= 0 ? 'disabled' : '';
+
+                produtoSelect.innerHTML += `
+            <option value="${p.variante_id}" data-estoque="${p.estoque}" data-preco="${p.preco_base}" ${disabled}>
+                ${p.linha} ${p.formato} - ${p.cor || ''} ${estoqueTexto} - R$ ${parseFloat(p.preco_base).toFixed(2)}
+            </option>
+        `;
+            });
+        }
+
+        // 2. Carregar Tabela de Pedidos
+        async function carregarTabelaFaturamentos() {
+            try {
+                const pedidosReq = await fetch("/pedido/listar");
+                const pedidos = await pedidosReq.json();
+                const tbody = document.getElementById("lista-pedidos-body");
+                tbody.innerHTML = "";
+
+                if (!pedidos || pedidos.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:20px; color:#999;'>Nenhuma venda registrada.</td></tr>";
+                    return;
+                }
+
+                pedidos.forEach(p => {
+                    const tr = document.createElement("tr");
+
+                    let resumo = "Vários itens";
+                    if (p.itens.length > 0) {
+                        const item = p.itens[0];
+                        resumo = `${item.quantidade}x ${item.sku || 'Produto'}`;
+                        if (p.itens.length > 1) resumo += ` (+${p.itens.length - 1})`;
+                    }
+
+                    const dataFmt = p.created_at ? new Date(p.created_at).toLocaleDateString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '-';
+
+                    tr.innerHTML = `
+                <td><span class="id-tag">#${p.id}</span></td>
+                <td style="font-weight:500;">${p.cliente_nome}</td>
+                <td style="font-size:0.85rem; color:#666;">${resumo}</td>
+                <td class="price-tag">R$ ${parseFloat(p.total).toFixed(2)}</td>
+                <td style="font-size:0.8rem; color:#999;">${dataFmt}</td>
+            `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                console.error("Erro tabela:", e);
+            }
+        }
+
+        // 3. Enviar Venda
+        document.getElementById("faturamento-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const clienteNome = document.getElementById("fatura-cliente").value;
+            const produtoSelect = document.getElementById("fatura-produto");
+            const varianteId = produtoSelect.value;
+            const quantidade = parseInt(document.getElementById("fatura-quantidade").value);
+
+            if (!clienteNome || !varianteId || !quantidade) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const estoque = parseInt(produtoSelect.selectedOptions[0]?.dataset.estoque || 0);
+            const preco = parseFloat(produtoSelect.selectedOptions[0]?.dataset.preco || 0);
+
+            if (quantidade > estoque) {
+                alert(`Estoque insuficiente! Disponível: ${estoque}`);
+                return;
+            }
+
+            const payload = {
+                cliente_nome: clienteNome,
+                itens: [{
+                    variante_id: varianteId,
+                    quantidade: quantidade,
+                    preco_unit: preco
+                }]
+            };
+
+            try {
+                const req = await fetch("/pedido/criar", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const res = await req.json();
+
+                if (req.ok) {
+                    alert(`Venda realizada com sucesso! Pedido #${res.pedido_id}`);
+                    e.target.reset();
+                    // Recarrega dados para atualizar estoque visualmente
+                    carregarDados();
+                    carregarTabelaFaturamentos();
+                } else {
+                    alert("Erro: " + (res.error || "Desconhecido"));
+                }
+            } catch (err) {
+                alert("Erro de conexão com o servidor.");
+            }
+        });
+
+        // Utilitário visual para estoque
+        function checkProdutoEstoque() {
+            const sel = document.getElementById("fatura-produto");
+            const btn = document.querySelector("button[type='submit']");
+            const opt = sel.selectedOptions[0];
+
+            if (opt && opt.value && parseInt(opt.dataset.estoque) <= 0) {
+                btn.disabled = true;
+                btn.innerText = "Sem Estoque";
+            } else {
+                btn.disabled = false;
+                btn.innerText = "Confirmar Venda";
+            }
+        }
+        document.getElementById("fatura-produto").addEventListener("change", checkProdutoEstoque);
+
+        // --- Lógica de Busca e Filtros ---
+
+        // Busca Global (Input na tela principal)
+        document.getElementById("global-search").addEventListener("input", (e) => {
+            const termo = e.target.value.toLowerCase();
+
+            // Filtra clientes
+            const clientesFiltrados = todosClientes.filter(c => c.nome.toLowerCase().includes(termo));
+            popularClientes(clientesFiltrados);
+
+            // Filtra produtos
+            const produtosFiltrados = todosProdutos.filter(p =>
+                p.linha.toLowerCase().includes(termo) ||
+                p.formato.toLowerCase().includes(termo) ||
+                (p.cor && p.cor.toLowerCase().includes(termo))
+            );
+            popularProdutos(produtosFiltrados);
+        });
+
+        // Modal
+        function abrirModalFiltro() {
+            document.getElementById("filter-modal").style.display = "flex";
+        }
+        function fecharModalFiltro() {
+            document.getElementById("filter-modal").style.display = "none";
+        }
+        function aplicarFiltros() {
+            const termoCliente = document.getElementById("filter-cliente-nome").value.toLowerCase();
+            const termoProduto = document.getElementById("filter-produto-nome").value.toLowerCase();
+
+            const clientesFiltrados = todosClientes.filter(c => c.nome.toLowerCase().includes(termoCliente));
+            popularClientes(clientesFiltrados);
+
+            const produtosFiltrados = todosProdutos.filter(p =>
+                p.linha.toLowerCase().includes(termoProduto) ||
+                p.formato.toLowerCase().includes(termoProduto) ||
+                (p.cor && p.cor.toLowerCase().includes(termoProduto))
+            );
+            popularProdutos(produtosFiltrados);
+
+            fecharModalFiltro();
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function (event) {
+            const modal = document.getElementById("filter-modal");
+            if (event.target == modal) {
+                fecharModalFiltro();
+            }
+        }
+
+        // Iniciar
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarDados();
+            carregarTabelaFaturamentos();
+        });
+    </script>
+
+</body>
+
+</html>

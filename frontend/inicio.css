@@ -1,0 +1,262 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
+    color: #333;
+    overflow-x: hidden;
+    transition: background 0.5s, color 0.5s;
+}
+
+/* HEADER E MENU */
+header {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    padding: 20px 0;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    transition: all 0.3s ease-in-out;
+}
+
+header h1 {
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+header nav a {
+    margin: 0 15px;
+    color: #1E3C72;
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.3s;
+}
+
+header nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    left: 0;
+    bottom: -5px;
+    background: #2A5298;
+    transition: width 0.3s ease;
+}
+
+header nav a:hover {
+    color: #2A5298;
+}
+
+header nav a:hover::after {
+    width: 100%;
+}
+
+/* CONTEÚDO PRINCIPAL (Adaptado para o Dashboard) */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* Espaçamento entre as seções do dashboard */
+    padding: 40px 20px;
+    width: 100%;
+    animation: fadeIn 1s ease forwards;
+}
+
+section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    padding: 35px 45px;
+    width: 100%; /* Ocupa a largura do container main */
+    max-width: 950px; /* Mantém a largura máxima */
+    margin: 0 auto; /* Centraliza as seções */
+    transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s;
+}
+
+section:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+section h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+/* === NOVOS ESTILOS DO DASHBOARD VISUAL === */
+
+/* Hub de Ações com Ícones */
+.action-hub {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 25px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #1E3C72;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.action-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    color: #2A5298;
+}
+
+.action-card svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 15px;
+    stroke: #1E3C72;
+    transition: stroke 0.3s ease;
+}
+
+.action-card:hover svg {
+    stroke: #2A5298;
+}
+
+/* Layout em duas colunas para Estoque e Atividades */
+.dashboard-columns {
+    display: grid;
+    grid-template-columns: 1fr; /* Coluna única por padrão */
+    gap: 25px;
+}
+
+@media (min-width: 900px) {
+    .dashboard-columns {
+        grid-template-columns: 1fr 1fr; /* Duas colunas em telas maiores */
+    }
+}
+
+/* Status do Estoque com Barras de Progresso */
+.stock-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+.stock-item-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+}
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease-in-out;
+}
+.progress-bar-fill.low { background: #e74c3c; }
+.progress-bar-fill.medium { background: #f39c12; }
+.progress-bar-fill.high { background: #2ecc71; }
+
+/* Feed de Atividades Recentes */
+.activity-feed { list-style: none; padding: 0; }
+.feed-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+.feed-item:last-child { border-bottom: none; }
+.feed-item svg { width: 24px; height: 24px; margin-right: 15px; }
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    section {
+        padding: 25px 20px;
+    }
+
+    header h1 {
+        font-size: 1.4em;
+    }
+}
+
+/* 🌙 MODO ESCURO AUTOMÁTICO (COMBINADO) */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+        color: #ddd;
+    }
+
+    header {
+        background: rgba(20, 20, 30, 0.8);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    }
+
+    header h1, header nav a {
+        color: #dbe9ff;
+    }
+
+    header nav a::after {
+        background: #6ea8fe;
+    }
+
+    section {
+        background: rgba(25, 30, 40, 0.95);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    section h2 {
+        color: #9ecbff;
+    }
+    
+    /* Estilos do Dashboard para Modo Escuro */
+    .action-card {
+        background: rgba(25, 30, 40, 0.95);
+        color: #9ecbff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    }
+    .action-card svg { stroke: #9ecbff; }
+    .action-card:hover { color: #fff; }
+    .action-card:hover svg { stroke: #fff; }
+    .progress-bar { background-color: #444; }
+    .feed-item { border-bottom-color: #333; }
+}

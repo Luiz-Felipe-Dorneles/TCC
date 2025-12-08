@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+  <title>Criar Conta</title>
+</head>
+<body>
+  <div class="card">
+    <h2>Criar Conta</h2>
+    <form id="register-form">
+      <label for="reg-nome">Nome</label>
+      <input type="text" id="reg-nome" placeholder="Seu nome" required>
+
+      <label for="reg-email">E-mail</label>
+      <input type="email" id="reg-email" placeholder="seu@exemplo.com" required>
+
+      <label for="reg-password">Senha</label>
+      <input type="password" id="reg-password" placeholder="Sua senha" required>
+
+      <label for="reg-password2">Confirmar senha</label>
+      <input type="password" id="reg-password2" placeholder="Repita a senha" required>
+      <span id="senha-msg" style="color:#ff0000; font-size:0.85em; margin-top:4px; display:block;"></span>
+
+      <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="links">
+      <a href="{{ url_for('index') }}">Voltar para login</a>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('register-form');
+    const senha = document.getElementById('reg-password');
+    const senha2 = document.getElementById('reg-password2');
+    const msg = document.getElementById('senha-msg');
+
+    senha2.addEventListener('input', () => {
+      if(senha.value !== senha2.value){
+        msg.textContent = "Senhas não coincidem!";
+      } else {
+        msg.textContent = "";
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nome = document.getElementById('reg-nome').value;
+      const email = document.getElementById('reg-email').value;
+      const senhaVal = senha.value;
+      const senhaConf = senha2.value;
+
+      if(senhaVal !== senhaConf){
+        msg.textContent = "Senhas não coincidem!";
+        return;
+      }
+
+      const res = await fetch("/register", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ nome, email, senha: senhaVal })
+      });
+
+      const data = await res.json();
+      alert(data.mensagem);
+
+      if(data.status === "ok"){
+        window.location.href = "/";
+      }
+    });
+  </script>
+</body>
+</html>

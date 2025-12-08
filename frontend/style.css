@@ -1,0 +1,305 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
+    color: #333;
+    overflow-x: hidden;
+    transition: background 0.5s, color 0.5s;
+}
+
+/* HEADER E MENU */
+header {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    padding: 20px 40px; /* um pouco mais de espaço nas laterais */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    transition: all 0.3s ease-in-out;
+
+    display: flex; /* faz o layout lado a lado */
+    justify-content: space-between; /* título à esquerda, nav à direita */
+    align-items: center; /* centraliza verticalmente */
+    text-align: left; /* garante alinhamento do título */
+}
+
+header h1 {
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    letter-spacing: 1px;
+}
+
+header h1 a {
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    letter-spacing: 1px;
+    text-decoration: none;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+}
+
+header nav a {
+    margin: 0 15px;
+    color: #1E3C72;
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+    transition: color 0.3s;
+}
+
+header nav a::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    left: 0;
+    bottom: -5px;
+    background: #2A5298;
+    transition: width 0.3s ease;
+}
+
+header nav a:hover {
+    color: #2A5298;
+}
+
+header nav a:hover::after {
+    width: 100%;
+}
+
+/* CONTEÚDO PRINCIPAL */
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    width: 100%;
+    animation: fadeIn 1s ease forwards;
+}
+
+section {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    padding: 35px 45px;
+    width: 90%;
+    max-width: 950px;
+    transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s;
+}
+
+section:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+section h2, section h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #1E3C72;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+}
+
+/* FORMULÁRIOS */
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+form input, form select {
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #1E3C72;
+    font-size: 1em;
+    outline: none;
+    transition: all 0.3s ease;
+    width: 45%;
+    min-width: 200px;
+    background-color: #f9f9f9;
+}
+
+form input:focus, form select:focus {
+    border-color: #2A5298;
+    box-shadow: 0 0 8px rgba(42, 82, 152, 0.4);
+    background-color: #fff;
+}
+
+form button {
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
+    color: #fff;
+    border: none;
+    padding: 14px 25px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+form button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(30, 60, 114, 0.4);
+}
+
+/* TABELAS */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 12px 14px;
+    text-align: center;
+    font-size: 0.95em;
+    transition: background 0.4s, color 0.4s;
+}
+
+table th {
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+}
+
+table tr:nth-child(even) {
+    background-color: #f4f7ff;
+}
+
+table tr:hover {
+    background-color: #e3eaff;
+    transition: 0.3s;
+}
+
+/* BOTÕES DE AÇÃO */
+button {
+    background: linear-gradient(135deg, #1E3C72, #2A5298);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(42, 82, 152, 0.4);
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    form input, form select {
+        width: 100%;
+    }
+
+    section {
+        padding: 25px 20px;
+    }
+
+    header h1 {
+        font-size: 1.4em;
+    }
+}
+
+/* 🌙 MODO ESCURO AUTOMÁTICO */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+        color: #ddd;
+    }
+
+    header {
+        background: rgba(20, 20, 30, 0.8);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    }
+
+    header h1, header nav a {
+        color: #dbe9ff;
+    }
+
+    header nav a::after {
+        background: #6ea8fe;
+    }
+
+    section {
+        background: rgba(25, 30, 40, 0.95);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    section h2, section h3 {
+        color: #9ecbff;
+    }
+
+    form input, form select {
+        background-color: #2a2f3a;
+        border: 1px solid #6ea8fe;
+        color: #eee;
+    }
+
+    form input:focus, form select:focus {
+        box-shadow: 0 0 8px rgba(110, 168, 254, 0.6);
+    }
+
+    table th {
+        background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+    }
+
+    table td {
+        background-color: #1c2230;
+        color: #e0e0e0;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #242b3a;
+    }
+
+    table tr:hover {
+        background-color: #2f3b4f;
+    }
+
+    button, form button {
+        background: linear-gradient(135deg, #304e75, #4063a3);
+        color: #fff;
+    }
+
+    button:hover, form button:hover {
+        box-shadow: 0 8px 20px rgba(110, 168, 254, 0.3);
+    }
+}
+
