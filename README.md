@@ -1,8 +1,8 @@
 # 🎓 Trabalho de Conclusão de Curso (TCC)
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow?style=for-the-badge" alt="Status" />
-  <img src="https://img.shields.io/badge/Curso-Ciência_da_Computação-blue?style=for-the-badge" alt="Curso" />
+  <img src="https://img.shields.io/badge/Status-Concluído-green?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/Curso-Análise_e_Desenvolvimento_de_Sistemas-blue?style=for-the-badge" alt="Curso" />
 </p>
 
 ## 📌 Sobre o Projeto
